@@ -30,6 +30,26 @@ This project is designed for a Java backend / full-stack developer resume. It fo
 
 ## Development Status
 
-Current stage: project planning and architecture design.
+Current stage: backend skeleton.
 
 See [docs/project-plan.md](docs/project-plan.md) for the detailed development plan.
+
+## Local Backend
+
+Backend module path:
+
+```bash
+backend
+```
+
+Run from the backend directory:
+
+```bash
+mvn spring-boot:run
+```
+
+Health check:
+
+```text
+GET http://localhost:8080/api/health
+```

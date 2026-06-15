@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生选课系统 - 登录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#0A2463',
+                        accent: '#3E92CC',
+                        neutral: '#F0F2F5',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .bg-gradient-blue {
+                background: linear-gradient(135deg, #165DFF 0%, #3E92CC 100%);
+            }
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(22, 93, 255, 0.1), 0 8px 10px -6px rgba(22, 93, 255, 0.1);
+            }
+            .input-focus {
+                @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-gray-50 min-h-screen flex flex-col">
+<!-- 导航栏 -->
+<nav class="bg-white shadow-sm sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <i class="fa fa-graduation-cap text-primary text-2xl mr-2"></i>
+                    <span class="text-xl font-semibold text-gray-900">学生选课系统</span>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <a href="#" class="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200">
+                    <i class="fa fa-question-circle mr-1"></i> 帮助
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 主内容区 -->
+<main class="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
+    <div class="w-full max-w-md">
+        <!-- 卡片容器 -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-[1.01] card-shadow">
+            <!-- 卡片头部 -->
+            <div class="bg-gradient-blue p-6 text-white">
+                <h2 class="text-[clamp(1.5rem,3vw,2rem)] font-bold mb-1">欢迎回来</h2>
+                <p class="text-blue-100">请登录以继续使用系统</p>
+            </div>
+
+            <!-- 卡片内容 -->
+            <div class="p-6">
+                <form action="/login" method="post" class="space-y-4">
+                    <!-- 学号输入 -->
+                    <div class="space-y-2">
+                        <label for="sid" class="block text-sm font-medium text-gray-700">
+                            <i class="fa fa-user-circle mr-1"></i> 学号
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa fa-id-card text-gray-400"></i>
+                            </div>
+                            <input type="text" name="sid" id="sid" required
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-200"
+                                   placeholder="请输入学号">
+                        </div>
+                    </div>
+
+                    <!-- 姓名输入 -->
+                    <div class="space-y-2">
+                        <label for="sname" class="block text-sm font-medium text-gray-700">
+                            <i class="fa fa-signature mr-1"></i> 姓名
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" name="sname" id="sname" required
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm input-focus transition-all duration-200"
+                                   placeholder="请输入姓名">
+                        </div>
+                    </div>
+
+                    <!-- 错误提示 -->
+                    <p th:if="${error}" th:text="${error}"
+                       class="text-red-500 text-sm flex items-center">
+                        <i class="fa fa-exclamation-circle mr-1"></i>
+                        <span>登录失败，请检查信息</span>
+                    </p>
+
+                    <!-- 登录按钮 -->
+                    <div class="pt-2">
+                        <button type="submit"
+                                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:-translate-y-0.5">
+                            <i class="fa fa-sign-in mr-2"></i> 登录
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 页脚信息 -->
+        <p class="mt-6 text-center text-sm text-gray-500">
+            <i class="fa fa-info-circle mr-1"></i> 如有问题，请联系管理员
+        </p>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="bg-white border-t border-gray-200 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-sm text-gray-500">
+            © 2025 学生选课系统 | 教育技术中心
+        </p>
+    </div>
+</footer>
+</body>
+</html>

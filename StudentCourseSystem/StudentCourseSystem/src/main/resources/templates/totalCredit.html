@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>总学分统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#6366F1',
+                        success: '#10B981',
+                        neutral: '#F3F4F6',
+                        dark: '#1F2937'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .stat-card {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen font-sans">
+<!-- 导航栏 -->
+<nav class="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <i class="fa fa-graduation-cap text-primary text-2xl"></i>
+            <span class="text-xl font-bold text-dark">学生学分系统</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="#" th:href="@{/index(sid=${sid})}" class="text-gray-600 hover:text-primary transition-colors duration-300 flex items-center">
+                <i class="fa fa-home mr-1"></i>
+                <span>首页</span>
+            </a>
+            <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <i class="fa fa-user text-primary"></i>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- 主要内容区 -->
+<main class="container mx-auto px-4 py-8">
+    <!-- 标题区域 -->
+    <div class="mb-8 text-center animate-fade-in">
+        <h1 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold text-dark mb-2">总学分统计</h1>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+            以下是您当前学期的学分统计信息
+        </p>
+    </div>
+
+    <!-- 学分统计卡片 -->
+    <div class="bg-white rounded-xl stat-card p-8 max-w-2xl mx-auto animate-fade-in">
+        <div class="text-center mb-6">
+            <i class="fa fa-graduation-cap text-primary text-5xl mb-4"></i>
+            <h2 class="text-2xl font-semibold text-dark">学分统计详情</h2>
+        </div>
+
+        <div class="space-y-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                    <i class="fa fa-user text-primary"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500">学号</p>
+                    <p class="text-lg font-medium text-dark" th:text="${sid}">[学号]</p>
+                </div>
+            </div>
+
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center mr-4">
+                    <i class="fa fa-calendar text-secondary"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500">学期编号</p>
+                    <p class="text-lg font-medium text-dark" th:text="${semester}">[学期]</p>
+                </div>
+            </div>
+
+            <div class="flex items-start pt-2 border-t border-gray-100">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-success/10 flex items-center justify-center mr-4">
+                    <i class="fa fa-book text-success"></i>
+                </div>
+                <div>
+                    <p class="text-gray-500">总学分</p>
+                    <p class="text-3xl font-bold text-dark" th:text="${totalCredit}">[总学分]</p>
+                    <p class="text-sm text-gray-600 mt-1">已完成 / 需修满</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 页脚 -->
+<footer class="bg-dark text-white py-8 mt-12">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <div class="flex items-center space-x-2">
+                    <i class="fa fa-graduation-cap text-primary text-2xl"></i>
+                    <span class="text-xl font-bold">学生学分系统</span>
+                </div>
+                <p class="text-gray-400 mt-2">为学生提供准确的学分统计服务</p>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                    <i class="fa fa-question-circle"></i>
+                    <span class="ml-1">帮助中心</span>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                    <i class="fa fa-envelope"></i>
+                    <span class="ml-1">联系我们</span>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-300">
+                    <i class="fa fa-shield"></i>
+                    <span class="ml-1">隐私政策</span>
+                </a>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-6 pt-6 text-center text-gray-400 text-sm">
+            <p>© 2025 高校学生学分系统. 保留所有权利.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 页面滚动时导航栏样式变化
+    window.addEventListener('scroll', function() {
+        const nav = document.querySelector('nav');
+        if (window.scrollY > 10) {
+            nav.classList.add('py-2', 'shadow-lg');
+            nav.classList.remove('py-3', 'shadow-md');
+        } else {
+            nav.classList.add('py-3', 'shadow-md');
+            nav.classList.remove('py-2', 'shadow-lg');
+        }
+    });
+</script>
+</body>
+</html>

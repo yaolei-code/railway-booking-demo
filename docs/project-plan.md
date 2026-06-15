@@ -211,11 +211,11 @@ Detailed API design will be placed in `docs/api-design.md`.
 
 ### Milestone 1: Project Foundation
 
-- Create Git repository
-- Create project planning documents
-- Generate Spring Boot backend structure
-- Add basic Maven dependencies
-- Add standard response format and global exception handling
+- Create Git repository: done
+- Create project planning documents: done
+- Generate Spring Boot backend structure: done
+- Add basic Maven dependencies: done
+- Add standard response format and global exception handling: done
 
 ### Milestone 2: User Authentication
 
