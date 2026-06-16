@@ -171,3 +171,29 @@ POST /api/users/register
 - `POST /api/users/register`
 
 注意：浏览器地址栏默认发的是 GET 请求，所以不能直接用地址栏测试注册接口。注册接口必须用 POST，并且带 JSON 请求体。
+
+### 本次新增：用户登录接口第一版
+
+新增代码：
+
+- `user/LoginRequest.java`：登录接口接收的请求参数。
+- `user/LoginResponse.java`：登录成功后返回给前端的数据。
+
+更新代码：
+
+- `UserService`：新增 `login` 方法。
+- `UserController`：新增 `POST /api/users/login` 接口。
+- `api-tests.http`：新增登录接口测试请求。
+
+登录流程：
+
+```text
+前端提交 username 和 password
+  -> UserController 接收请求
+  -> UserService 根据 username 查询 users 表
+  -> 使用 BCrypt 校验密码是否匹配
+  -> 校验用户状态是否 ENABLED
+  -> 返回登录成功的用户信息
+```
+
+注意：这一版登录成功后还没有返回 JWT。现在只是先验证“用户名 + 密码是否正确”。下一步会加入 JWT，让后端能够识别“这个请求是谁发来的”。

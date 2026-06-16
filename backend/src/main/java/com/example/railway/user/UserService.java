@@ -37,4 +37,23 @@ public class UserService {
         userMapper.insert(user);
         return UserResponse.from(user);
     }
+
+    public LoginResponse login(LoginRequest request) {
+        User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, request.username()));
+        if (user == null) {
+            throw new IllegalArgumentException("username or password is incorrect");
+        }
+
+        boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPasswordHash());
+        if (!passwordMatches) {
+            throw new IllegalArgumentException("username or password is incorrect");
+        }
+
+        if (!"ENABLED".equals(user.getStatus())) {
+            throw new IllegalArgumentException("user account is disabled");
+        }
+
+        return LoginResponse.from(user);
+    }
 }
