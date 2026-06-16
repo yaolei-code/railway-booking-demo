@@ -113,3 +113,40 @@ http://localhost:8080/api/health
 3. 创建注册接口。
 4. 创建登录接口。
 5. 后续再加入 JWT 和权限控制。
+
+### 本次新增：用户注册模块第一版
+
+新增后端依赖：
+
+- MyBatis-Plus：替代旧项目里手写 JDBC/DAO 的方式，用 Mapper 操作数据库。
+- MySQL Driver：让 Java 程序能连接 MySQL。
+- Spring Security Crypto：只使用其中的 BCrypt 密码加密工具，暂时还没有启用完整权限控制。
+
+新增代码：
+
+- `user/User.java`：用户表对应的 Java 实体。
+- `user/UserMapper.java`：操作 `users` 表的 Mapper。
+- `user/RegisterRequest.java`：注册接口接收的请求参数。
+- `user/UserResponse.java`：注册成功后返回给前端的数据。
+- `user/UserService.java`：注册业务逻辑，包括用户名查重和密码加密。
+- `user/UserController.java`：注册接口入口。
+- `schema.sql`：第一张表 `users` 的建表 SQL。
+
+新增接口：
+
+```text
+POST /api/users/register
+```
+
+请求示例：
+
+```json
+{
+  "username": "testuser",
+  "password": "123456",
+  "phone": "13800000000",
+  "email": "test@example.com"
+}
+```
+
+这一版还没有 JWT，也没有登录接口。现在只是先把“注册用户并保存到数据库”这条链路搭出来。
