@@ -203,6 +203,8 @@ seatType=SECOND_CLASS
 
 `seatType` is optional.
 
+The response item includes `inventoryId`, which is used when creating an order.
+
 ## 6. Orders
 
 All order APIs require:

@@ -166,6 +166,7 @@ public class TicketService {
         Long durationMinutes = calculateDurationMinutes(departureStop.getDepartureTime(), arrivalStop.getArrivalTime());
 
         return new TicketSearchResponse(
+                inventory.getId(),
                 schedule.getId(),
                 schedule.getTravelDate(),
                 train.getId(),

@@ -261,10 +261,10 @@ Detailed API design will be placed in `docs/api-design.md`.
 
 ### Milestone 7: Frontend
 
-- Create Vue 3 frontend
-- Build login and register pages
-- Build ticket search page
-- Build order list and order detail pages
+- Create Vue 3 frontend: first version done
+- Build login and register pages: first version done
+- Build ticket search page: first version done
+- Build order list and order detail pages: first version done
 - Build simple admin pages
 
 ### Milestone 8: Deployment and Resume Polish

@@ -67,3 +67,29 @@ GET http://localhost:8080/api/tickets/search?departureStationId=1&arrivalStation
 ```
 
 See [docs/api-design.md](docs/api-design.md) for the current backend API list.
+
+## Local Frontend
+
+Frontend module path:
+
+```bash
+frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run from the frontend directory:
+
+```bash
+npm run dev
+```
+
+Default frontend URL:
+
+```text
+http://localhost:5173
+```

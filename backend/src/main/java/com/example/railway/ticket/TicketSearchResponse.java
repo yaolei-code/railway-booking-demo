@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record TicketSearchResponse(
+        Long inventoryId,
         Long scheduleId,
         LocalDate travelDate,
         Long trainId,

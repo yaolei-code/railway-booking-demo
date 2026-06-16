@@ -549,6 +549,56 @@ POST /api/orders/{id}/cancel
 mysql -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
 ```
 
+### 本次新增：Vue 前端第一版
+
+新增前端目录：
+
+- `frontend`
+
+新增技术栈：
+
+- Vue 3
+- Vite
+- Element Plus
+- lucide-vue-next
+
+第一版前端功能：
+
+- 注册用户。
+- 登录并保存 JWT token。
+- 查询车站。
+- 按出发站、到达站、日期和座位类型查票。
+- 创建订单。
+- 查询我的订单。
+- 支付订单。
+- 取消订单。
+
+前端启动方式：
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+默认访问：
+
+```text
+http://localhost:5173
+```
+
+注意：前端通过 Vite proxy 调用后端 `/api`，所以使用前端页面前，需要先启动后端：
+
+```bash
+cd backend
+mvn spring-boot:run
+```
+
+已经验证：
+
+- `cd backend && mvn test` 通过。
+- `cd frontend && npm run build` 通过。
+
 ### 本次新增：数据库原子扣库存防超卖第一版
 
 更新代码：
