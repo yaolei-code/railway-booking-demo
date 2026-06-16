@@ -150,3 +150,24 @@ POST /api/users/register
 ```
 
 这一版还没有 JWT，也没有登录接口。现在只是先把“注册用户并保存到数据库”这条链路搭出来。
+
+### 本次验证：注册接口真实写入数据库
+
+已经确认：
+
+- 本机 MySQL 服务 `MySQL80` 正在运行。
+- 正确的本地数据库账号是 `root`，密码通过环境变量 `DB_PASSWORD` 提供。
+- 已创建数据库 `railway_booking`。
+- 已创建数据表 `users`。
+- `POST /api/users/register` 已经成功注册测试用户。
+
+为了方便在 IDEA 里测试接口，新增：
+
+- `backend/api-tests.http`
+
+这个文件里包含：
+
+- `GET /api/health`
+- `POST /api/users/register`
+
+注意：浏览器地址栏默认发的是 GET 请求，所以不能直接用地址栏测试注册接口。注册接口必须用 POST，并且带 JSON 请求体。
