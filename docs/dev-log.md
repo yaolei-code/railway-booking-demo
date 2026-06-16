@@ -532,6 +532,23 @@ POST /api/orders/{id}/cancel
 
 - `mvn test` 通过，结果为 `BUILD SUCCESS`。
 
+### 本次新增：演示数据脚本和 API 文档
+
+新增文件：
+
+- `backend/src/main/resources/demo-data.sql`：用于插入北京南、上海虹桥、G101、2026-06-20 余票等演示数据。
+- `docs/api-design.md`：集中记录当前后端接口。
+
+为什么要加：
+
+后端接口越来越多，如果只靠聊天记录或代码回忆，后面做 Vue 前端时会很累。现在把接口统一整理成文档，前端开发时就可以按文档调用。
+
+演示数据脚本可以让本地数据库快速恢复到“能查票”的状态：
+
+```bash
+mysql -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
+```
+
 ### 本次新增：数据库原子扣库存防超卖第一版
 
 更新代码：

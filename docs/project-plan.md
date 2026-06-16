@@ -179,6 +179,12 @@ Detailed SQL design will be placed in `docs/database-design.md`.
 
 ## 6. API Draft
 
+Current API documentation is maintained in:
+
+```text
+docs/api-design.md
+```
+
 Public APIs:
 
 - `POST /api/auth/register`

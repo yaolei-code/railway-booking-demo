@@ -53,3 +53,17 @@ Health check:
 ```text
 GET http://localhost:8080/api/health
 ```
+
+Load demo data after creating the schema:
+
+```bash
+mysql -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
+```
+
+Demo ticket search:
+
+```text
+GET http://localhost:8080/api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20
+```
+
+See [docs/api-design.md](docs/api-design.md) for the current backend API list.
