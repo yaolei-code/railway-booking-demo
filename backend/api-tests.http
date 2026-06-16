@@ -24,3 +24,141 @@ Content-Type: application/json
 ### Current user
 GET http://localhost:8080/api/users/me
 Authorization: Bearer paste-login-token-here
+
+### List stations
+GET http://localhost:8080/api/stations
+
+### Search stations by keyword
+GET http://localhost:8080/api/stations?keyword=北京
+
+### Create station
+POST http://localhost:8080/api/admin/stations
+Content-Type: application/json
+
+{
+  "name": "北京南",
+  "city": "北京",
+  "code": "BJN"
+}
+
+### Update station
+PUT http://localhost:8080/api/admin/stations/1
+Content-Type: application/json
+
+{
+  "name": "北京南",
+  "city": "北京",
+  "code": "BJN"
+}
+
+### Delete station
+DELETE http://localhost:8080/api/admin/stations/1
+
+### List trains
+GET http://localhost:8080/api/trains
+
+### Search trains by keyword
+GET http://localhost:8080/api/trains?keyword=G
+
+### Create train
+POST http://localhost:8080/api/admin/trains
+Content-Type: application/json
+
+{
+  "trainNo": "G101",
+  "trainType": "G",
+  "status": "ACTIVE"
+}
+
+### Update train
+PUT http://localhost:8080/api/admin/trains/1
+Content-Type: application/json
+
+{
+  "trainNo": "G101",
+  "trainType": "G",
+  "status": "ACTIVE"
+}
+
+### Replace train stop stations
+PUT http://localhost:8080/api/admin/trains/1/stations
+Content-Type: application/json
+
+[
+  {
+    "stationId": 1,
+    "stopOrder": 1,
+    "arrivalTime": null,
+    "departureTime": "08:00:00"
+  },
+  {
+    "stationId": 2,
+    "stopOrder": 2,
+    "arrivalTime": "12:30:00",
+    "departureTime": null
+  }
+]
+
+### List train stop stations
+GET http://localhost:8080/api/trains/1/stations
+
+### Delete train
+DELETE http://localhost:8080/api/admin/trains/1
+
+### Create daily schedule
+POST http://localhost:8080/api/admin/schedules
+Content-Type: application/json
+
+{
+  "trainId": 1,
+  "travelDate": "2026-06-20",
+  "status": "OPEN"
+}
+
+### Create ticket inventory
+POST http://localhost:8080/api/admin/inventory
+Content-Type: application/json
+
+{
+  "scheduleId": 1,
+  "departureStationId": 1,
+  "arrivalStationId": 2,
+  "seatType": "SECOND_CLASS",
+  "totalCount": 100,
+  "availableCount": 100,
+  "lockedCount": 0,
+  "price": 553.00
+}
+
+### Search tickets
+GET http://localhost:8080/api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20
+
+### Search tickets by seat type
+GET http://localhost:8080/api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20&seatType=SECOND_CLASS
+
+### Create order
+POST http://localhost:8080/api/orders
+Authorization: Bearer paste-login-token-here
+Content-Type: application/json
+
+{
+  "inventoryId": 1,
+  "passengerName": "张三",
+  "passengerIdNo": "110101199001011234"
+}
+
+### List my orders
+GET http://localhost:8080/api/orders
+Authorization: Bearer paste-login-token-here
+
+### Get my order detail
+GET http://localhost:8080/api/orders/1
+Authorization: Bearer paste-login-token-here
+
+### Pay order
+POST http://localhost:8080/api/orders/1/pay
+Authorization: Bearer paste-login-token-here
+
+### Cancel order
+POST http://localhost:8080/api/orders/1/cancel
+Authorization: Bearer paste-login-token-here

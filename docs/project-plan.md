@@ -219,33 +219,33 @@ Detailed API design will be placed in `docs/api-design.md`.
 
 ### Milestone 2: User Authentication
 
-- Implement user registration
-- Implement user login
-- Add password encryption
-- Add JWT authentication filter
-- Add current-user endpoint
+- Implement user registration: done
+- Implement user login: done
+- Add password encryption: done
+- Add JWT token issuance: done
+- Add current-user endpoint: done
 
 ### Milestone 3: Station and Train Data
 
 - Design station and train tables
-- Implement station CRUD
-- Implement train and stop station management
+- Implement station CRUD: station CRUD done
+- Implement train and stop station management: first version done
 - Add initial seed data
 
 ### Milestone 4: Ticket Search
 
-- Implement travel date schedule model
-- Implement remaining ticket inventory model
-- Implement ticket search API
+- Implement travel date schedule model: first version done
+- Implement remaining ticket inventory model: first version done
+- Implement ticket search API: first version done
 - Add basic query tests
 
 ### Milestone 5: Order Workflow
 
-- Implement order creation
-- Implement inventory deduction
-- Implement order payment simulation
-- Implement order cancellation
-- Add timeout cancellation scheduled task
+- Implement order creation: first version done
+- Implement inventory deduction: first version locks one ticket
+- Implement order payment simulation: first version done
+- Implement order cancellation: first version done
+- Add timeout cancellation scheduled task: first version done
 
 ### Milestone 6: Concurrency and Redis
 

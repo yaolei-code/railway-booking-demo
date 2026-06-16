@@ -18,3 +18,7 @@ app:
   jwt:
     secret: ${JWT_SECRET:dev-secret-key-change-me-please-32bytes}
     expiration-minutes: 120
+  order:
+    payment-timeout-minutes: 15
+    timeout-initial-delay-ms: 60000
+    timeout-scan-ms: 60000

@@ -258,3 +258,312 @@ POST /api/users/register
 - `docs/stage-01-user-module-summary.md`
 
 如果切换到新的 Codex 窗口，可以让新窗口先阅读这份文档，再继续车站模块。
+
+### 本次新增：车站模块第一版
+
+新增数据库表：
+
+- `stations`：保存车站名称、所在城市、车站编码。
+
+新增代码：
+
+- `station/Station.java`：车站表对应的 Java 实体。
+- `station/StationMapper.java`：操作 `stations` 表的 Mapper。
+- `station/StationRequest.java`：新增和修改车站时接收的请求参数。
+- `station/StationResponse.java`：返回给前端的车站数据。
+- `station/StationService.java`：车站业务逻辑，包括列表查询、查重、新增、修改、删除。
+- `station/StationController.java`：车站接口入口。
+
+新增接口：
+
+```text
+GET /api/stations
+GET /api/stations?keyword=北京
+POST /api/admin/stations
+PUT /api/admin/stations/{id}
+DELETE /api/admin/stations/{id}
+```
+
+这一版先用 `/api/admin/stations` 表示管理接口，但还没有真正接入管理员权限校验。后面加入 Spring Security 和角色权限后，再让这些接口只允许管理员访问。
+
+车站模块可以按这条链路理解：
+
+```text
+接口测试工具
+  -> StationController 接收请求
+  -> StationService 判断车站名和编码是否重复
+  -> StationMapper 操作 MySQL
+  -> stations 表保存或查询车站
+  -> ApiResponse 返回统一 JSON
+```
+
+已经验证：
+
+- `stations` 表已创建到本地 `railway_booking` 数据库。
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
+### 本次新增：车次和经停车站模块第一版
+
+新增数据库表：
+
+- `trains`：保存车次基本信息，例如车次号、车次类型、状态。
+- `train_stations`：保存一趟车经过哪些站，以及每站的到达时间和发车时间。
+
+新增代码：
+
+- `train/Train.java`：车次表对应的 Java 实体。
+- `train/TrainStation.java`：经停车站表对应的 Java 实体。
+- `train/TrainMapper.java`：操作 `trains` 表的 Mapper。
+- `train/TrainStationMapper.java`：操作 `train_stations` 表的 Mapper。
+- `train/TrainRequest.java`：新增和修改车次时接收的请求参数。
+- `train/TrainResponse.java`：返回给前端的车次数据。
+- `train/TrainStationRequest.java`：设置经停车站时接收的请求参数。
+- `train/TrainStationResponse.java`：返回给前端的经停车站数据。
+- `train/TrainService.java`：车次和经停车站业务逻辑。
+- `train/TrainController.java`：车次接口入口。
+
+新增接口：
+
+```text
+GET /api/trains
+GET /api/trains?keyword=G
+POST /api/admin/trains
+PUT /api/admin/trains/{id}
+DELETE /api/admin/trains/{id}
+GET /api/trains/{id}/stations
+PUT /api/admin/trains/{id}/stations
+```
+
+这一版经停车站使用“整条线路一次提交并替换”的方式。比如设置 G101 的路线时，一次提交北京南、济南西、南京南、上海虹桥这些站，而不是一个站一个站单独修改。
+
+车次模块可以按这条链路理解：
+
+```text
+接口测试工具
+  -> TrainController 接收请求
+  -> TrainService 判断车次号是否重复、站点是否存在、站序是否重复
+  -> TrainMapper / TrainStationMapper 操作 MySQL
+  -> trains / train_stations 表保存车次和路线
+  -> ApiResponse 返回统一 JSON
+```
+
+已经验证：
+
+- `trains` 和 `train_stations` 表已创建到本地 `railway_booking` 数据库。
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
+### 本次新增：查票模块第一版
+
+新增数据库表：
+
+- `train_daily_schedules`：保存某一天某趟车是否开行。
+- `ticket_inventory`：保存某天某趟车、某个出发站到到达站、某个座位类型的余票和票价。
+
+新增代码：
+
+- `ticket/TrainDailySchedule.java`：每日车次表对应的 Java 实体。
+- `ticket/TicketInventory.java`：余票库存表对应的 Java 实体。
+- `ticket/TrainDailyScheduleMapper.java`：操作 `train_daily_schedules` 表的 Mapper。
+- `ticket/TicketInventoryMapper.java`：操作 `ticket_inventory` 表的 Mapper。
+- `ticket/ScheduleRequest.java`：创建每日车次时接收的请求参数。
+- `ticket/ScheduleResponse.java`：返回每日车次数据。
+- `ticket/InventoryRequest.java`：创建库存时接收的请求参数。
+- `ticket/InventoryResponse.java`：返回库存数据。
+- `ticket/TicketSearchResponse.java`：查票接口返回给前端的数据。
+- `ticket/TicketService.java`：查票业务逻辑。
+- `ticket/TicketController.java`：查票接口入口。
+
+新增接口：
+
+```text
+POST /api/admin/schedules
+POST /api/admin/inventory
+GET /api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20
+GET /api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20&seatType=SECOND_CLASS
+```
+
+查票模块可以按这条链路理解：
+
+```text
+用户输入出发站、到达站、日期
+  -> TicketController 接收请求
+  -> TicketService 查询库存
+  -> 检查每日车次是否 OPEN、车次是否 ACTIVE
+  -> 检查出发站是否在到达站前面
+  -> 返回车次号、时间、余票、票价
+```
+
+本地数据库已添加一组演示数据：
+
+```text
+北京南 -> 上海虹桥
+G101
+2026-06-20
+SECOND_CLASS
+余票 100
+票价 553.00
+```
+
+已经验证：
+
+- `train_daily_schedules` 和 `ticket_inventory` 表已创建到本地 `railway_booking` 数据库。
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
+### 本次新增：订单模块第一版
+
+新增数据库表：
+
+- `ticket_orders`：保存订单主信息，例如订单号、用户、订单状态、总金额。
+- `ticket_order_items`：保存订单明细，例如乘车人、区间、座位类型、票价。
+
+新增代码：
+
+- `order/TicketOrder.java`：订单主表对应的 Java 实体。
+- `order/TicketOrderItem.java`：订单明细表对应的 Java 实体。
+- `order/TicketOrderMapper.java`：操作 `ticket_orders` 表的 Mapper。
+- `order/TicketOrderItemMapper.java`：操作 `ticket_order_items` 表的 Mapper。
+- `order/CreateOrderRequest.java`：创建订单时接收的请求参数。
+- `order/OrderItemResponse.java`：返回订单明细数据。
+- `order/OrderResponse.java`：返回订单主信息和明细。
+- `order/OrderService.java`：订单业务逻辑。
+- `order/OrderController.java`：订单接口入口。
+
+新增接口：
+
+```text
+POST /api/orders
+GET /api/orders
+GET /api/orders/{id}
+```
+
+第一版下单流程：
+
+```text
+用户带 JWT token 请求下单
+  -> 后端解析当前 userId
+  -> 查询 ticket_inventory 库存
+  -> 如果有余票，available_count 减 1，locked_count 加 1
+  -> 创建 ticket_orders 主订单
+  -> 创建 ticket_order_items 订单明细
+  -> 订单状态为 PENDING_PAYMENT
+```
+
+这一版先把主流程跑通，还没有做支付、取消、超时释放库存，也还没有 Redis 防超卖。
+
+已经验证：
+
+- `ticket_orders` 和 `ticket_order_items` 表已创建到本地 `railway_booking` 数据库。
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
+### 本次新增：模拟支付模块第一版
+
+新增数据库表：
+
+- `payments`：保存模拟支付流水，例如支付流水号、订单 ID、支付金额、支付状态、支付时间。
+
+新增代码：
+
+- `payment/Payment.java`：支付表对应的 Java 实体。
+- `payment/PaymentMapper.java`：操作 `payments` 表的 Mapper。
+- `payment/PaymentResponse.java`：返回给前端的支付数据。
+- `payment/PaymentService.java`：支付业务逻辑。
+- `payment/PaymentController.java`：支付接口入口。
+
+新增接口：
+
+```text
+POST /api/orders/{id}/pay
+```
+
+第一版支付流程：
+
+```text
+用户带 JWT token 请求支付订单
+  -> 后端确认订单属于当前用户
+  -> 确认订单状态是 PENDING_PAYMENT
+  -> 创建 payments 支付流水，状态为 SUCCESS
+  -> 把 ticket_orders 订单状态改为 PAID
+  -> 把 locked_count 减 1
+```
+
+这里的库存可以这样理解：
+
+```text
+下单时：available_count 减 1，locked_count 加 1
+支付时：available_count 不变，locked_count 减 1
+```
+
+也就是说，下单已经把票从可售库存里拿走；支付成功后，这张票不再是“锁定中”，而是已经正式售出。
+
+已经验证：
+
+- `payments` 表已创建到本地 `railway_booking` 数据库。
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
+### 本次新增：取消订单模块第一版
+
+更新代码：
+
+- `order/OrderService.java`：新增取消订单业务逻辑。
+- `order/OrderController.java`：新增取消订单接口。
+- `api-tests.http`：新增取消订单接口测试请求。
+
+新增接口：
+
+```text
+POST /api/orders/{id}/cancel
+```
+
+第一版取消流程：
+
+```text
+用户带 JWT token 请求取消订单
+  -> 后端确认订单属于当前用户
+  -> 确认订单状态是 PENDING_PAYMENT
+  -> 把 locked_count 减 1
+  -> 把 available_count 加 1
+  -> 把 ticket_orders 订单状态改为 CANCELLED
+  -> 写入 cancelled_at
+```
+
+取消订单可以理解成“把未支付订单占住的票还回去”。已经支付的订单不能用这个接口取消，后面如果要做退款，会单独设计退款流程。
+
+已经验证：
+
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
+### 本次新增：未支付订单超时自动取消
+
+更新代码：
+
+- `RailwayBookingApplication.java`：启用 Spring 定时任务。
+- `order/OrderService.java`：新增定时扫描并取消超时未支付订单的逻辑。
+- `application.yml`：新增订单超时配置。
+
+新增配置：
+
+```yaml
+app:
+  order:
+    payment-timeout-minutes: 15
+    timeout-initial-delay-ms: 60000
+    timeout-scan-ms: 60000
+```
+
+第一版超时取消流程：
+
+```text
+系统启动 60 秒后开始第一次扫描
+  -> 之后每 60 秒扫描一次
+  -> 找出创建时间超过 15 分钟、状态仍为 PENDING_PAYMENT 的订单
+  -> 把 locked_count 减 1
+  -> 把 available_count 加 1
+  -> 把订单状态改为 CANCELLED
+  -> 写入 cancelled_at
+```
+
+可以把这个功能理解成“后台值班员”。用户不需要手动操作，系统会定期检查过期未支付订单，并把它们占住的票还回库存。
+
+已经验证：
+
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
