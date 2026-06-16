@@ -532,6 +532,44 @@ POST /api/orders/{id}/cancel
 
 - `mvn test` 通过，结果为 `BUILD SUCCESS`。
 
+### 本次新增：数据库原子扣库存防超卖第一版
+
+更新代码：
+
+- `ticket/TicketInventoryMapper.java`：新增原子锁票、确认锁票、释放锁票 SQL。
+- `order/OrderService.java`：下单时改为使用数据库原子 SQL 锁票。
+- `payment/PaymentService.java`：支付成功时改为使用数据库原子 SQL 确认锁票。
+
+为什么要改：
+
+旧流程可以理解为：
+
+```text
+先查库存
+  -> Java 判断 available_count > 0
+  -> 再更新库存
+```
+
+如果多人同时下单，可能大家同时查到“还剩 1 张”，然后都继续下单，这就是超卖风险。
+
+现在下单改成一条 SQL：
+
+```sql
+UPDATE ticket_inventory
+SET available_count = available_count - 1,
+    locked_count = locked_count + 1
+WHERE id = ?
+  AND available_count > 0
+```
+
+这条 SQL 是数据库原子执行的。只有真正更新成功的请求才算抢到票。如果库存已经是 0，SQL 影响行数就是 0，后端返回“ticket is sold out”。
+
+可以先把它理解成：不让 Java 先看一眼再决定，而是让数据库在同一瞬间完成“检查 + 扣减”。
+
+已经验证：
+
+- `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
 ### 本次新增：未支付订单超时自动取消
 
 更新代码：

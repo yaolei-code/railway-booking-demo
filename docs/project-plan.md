@@ -250,7 +250,7 @@ Detailed API design will be placed in `docs/api-design.md`.
 ### Milestone 6: Concurrency and Redis
 
 - Cache ticket inventory in Redis
-- Add atomic inventory deduction with Redis Lua or database optimistic lock
+- Add atomic inventory deduction with Redis Lua or database optimistic lock: database atomic update first version done
 - Add oversell prevention test
 
 ### Milestone 7: Frontend

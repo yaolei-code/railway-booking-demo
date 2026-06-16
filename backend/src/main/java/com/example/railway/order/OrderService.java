@@ -50,13 +50,11 @@ public class OrderService {
         if (inventory == null) {
             throw new IllegalArgumentException("ticket inventory not found");
         }
-        if (inventory.getAvailableCount() <= 0) {
+
+        int lockedRows = inventoryMapper.lockOneTicket(inventory.getId());
+        if (lockedRows == 0) {
             throw new IllegalArgumentException("ticket is sold out");
         }
-
-        inventory.setAvailableCount(inventory.getAvailableCount() - 1);
-        inventory.setLockedCount(inventory.getLockedCount() + 1);
-        inventoryMapper.updateById(inventory);
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -162,20 +160,15 @@ public class OrderService {
                 .eq(TicketOrderItem::getOrderId, orderId));
 
         for (TicketOrderItem item : items) {
-            TicketInventory inventory = inventoryMapper.selectOne(new LambdaQueryWrapper<TicketInventory>()
-                    .eq(TicketInventory::getScheduleId, item.getScheduleId())
-                    .eq(TicketInventory::getDepartureStationId, item.getDepartureStationId())
-                    .eq(TicketInventory::getArrivalStationId, item.getArrivalStationId())
-                    .eq(TicketInventory::getSeatType, item.getSeatType()));
-            if (inventory == null) {
-                throw new IllegalArgumentException("ticket inventory not found");
-            }
-            if (inventory.getLockedCount() <= 0) {
+            int releasedRows = inventoryMapper.releaseLockedTicket(
+                    item.getScheduleId(),
+                    item.getDepartureStationId(),
+                    item.getArrivalStationId(),
+                    item.getSeatType()
+            );
+            if (releasedRows == 0) {
                 throw new IllegalArgumentException("locked ticket count is invalid");
             }
-            inventory.setLockedCount(inventory.getLockedCount() - 1);
-            inventory.setAvailableCount(inventory.getAvailableCount() + 1);
-            inventoryMapper.updateById(inventory);
         }
     }
 

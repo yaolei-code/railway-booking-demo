@@ -6,7 +6,6 @@ import com.example.railway.order.TicketOrder;
 import com.example.railway.order.TicketOrderItem;
 import com.example.railway.order.TicketOrderItemMapper;
 import com.example.railway.order.TicketOrderMapper;
-import com.example.railway.ticket.TicketInventory;
 import com.example.railway.ticket.TicketInventoryMapper;
 import com.example.railway.user.JwtService;
 import org.slf4j.Logger;
@@ -89,19 +88,15 @@ public class PaymentService {
                 .eq(TicketOrderItem::getOrderId, orderId));
 
         for (TicketOrderItem item : items) {
-            TicketInventory inventory = inventoryMapper.selectOne(new LambdaQueryWrapper<TicketInventory>()
-                    .eq(TicketInventory::getScheduleId, item.getScheduleId())
-                    .eq(TicketInventory::getDepartureStationId, item.getDepartureStationId())
-                    .eq(TicketInventory::getArrivalStationId, item.getArrivalStationId())
-                    .eq(TicketInventory::getSeatType, item.getSeatType()));
-            if (inventory == null) {
-                throw new IllegalArgumentException("ticket inventory not found");
-            }
-            if (inventory.getLockedCount() <= 0) {
+            int confirmedRows = inventoryMapper.confirmLockedTicket(
+                    item.getScheduleId(),
+                    item.getDepartureStationId(),
+                    item.getArrivalStationId(),
+                    item.getSeatType()
+            );
+            if (confirmedRows == 0) {
                 throw new IllegalArgumentException("locked ticket count is invalid");
             }
-            inventory.setLockedCount(inventory.getLockedCount() - 1);
-            inventoryMapper.updateById(inventory);
         }
     }
 

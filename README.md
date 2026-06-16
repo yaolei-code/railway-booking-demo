@@ -30,7 +30,7 @@ This project is designed for a Java backend / full-stack developer resume. It fo
 
 ## Development Status
 
-Current stage: backend core workflow completed in first version, including user, station, train, ticket search, order, payment, cancellation, and unpaid order timeout handling.
+Current stage: backend core workflow completed in first version, including user, station, train, ticket search, order, payment, cancellation, unpaid order timeout handling, and database-level anti-oversell.
 
 See [docs/project-plan.md](docs/project-plan.md) for the detailed development plan.
 
