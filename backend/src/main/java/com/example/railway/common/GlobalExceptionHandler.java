@@ -32,6 +32,12 @@ public class GlobalExceptionHandler {
         return ApiResponse.fail(405, "request method not supported");
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<Void> handleUnauthorizedException(UnauthorizedException exception) {
+        return ApiResponse.fail(401, exception.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Void> handleException(Exception exception) {

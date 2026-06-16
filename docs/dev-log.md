@@ -197,3 +197,40 @@ POST /api/users/register
 ```
 
 注意：这一版登录成功后还没有返回 JWT。现在只是先验证“用户名 + 密码是否正确”。下一步会加入 JWT，让后端能够识别“这个请求是谁发来的”。
+
+### 本次新增：JWT 登录通行证第一版
+
+新增依赖：
+
+- JJWT：用于生成和解析 JWT token。
+
+新增代码：
+
+- `common/UnauthorizedException.java`：表示用户没有登录或 token 无效。
+- `user/JwtService.java`：负责生成 token、解析 token。
+
+更新代码：
+
+- `LoginResponse`：登录成功后返回 token。
+- `UserService`：登录成功后生成 token，并新增当前用户查询逻辑。
+- `UserController`：新增 `GET /api/users/me`。
+- `GlobalExceptionHandler`：把未登录或 token 无效统一返回 401。
+- `api-tests.http`：新增当前用户接口测试。
+
+现在用户模块的流程是：
+
+```text
+注册
+  -> 保存用户
+
+登录
+  -> 校验用户名和密码
+  -> 返回 JWT token
+
+查询当前用户
+  -> 请求头带 Authorization: Bearer token
+  -> 后端解析 token
+  -> 返回当前登录用户信息
+```
+
+可以先把 JWT 理解成“登录成功后发给用户的一张临时通行证”。后续查订单、下单等需要登录的接口，都会要求用户带上这张通行证。

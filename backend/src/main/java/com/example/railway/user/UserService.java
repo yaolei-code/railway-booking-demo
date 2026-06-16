@@ -1,6 +1,7 @@
 package com.example.railway.user;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.example.railway.common.UnauthorizedException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +11,12 @@ import java.time.LocalDateTime;
 public class UserService {
 
     private final UserMapper userMapper;
+    private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public UserService(UserMapper userMapper) {
+    public UserService(UserMapper userMapper, JwtService jwtService) {
         this.userMapper = userMapper;
+        this.jwtService = jwtService;
     }
 
     public UserResponse register(RegisterRequest request) {
@@ -54,6 +57,24 @@ public class UserService {
             throw new IllegalArgumentException("user account is disabled");
         }
 
-        return LoginResponse.from(user);
+        String token = jwtService.createToken(user);
+        return LoginResponse.from(user, token);
+    }
+
+    public UserResponse getCurrentUser(String authorizationHeader) {
+        String token = extractBearerToken(authorizationHeader);
+        Long userId = jwtService.parseUserId(token);
+        User user = userMapper.selectById(userId);
+        if (user == null || !"ENABLED".equals(user.getStatus())) {
+            throw new UnauthorizedException("user is not logged in");
+        }
+        return UserResponse.from(user);
+    }
+
+    private String extractBearerToken(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException("missing token");
+        }
+        return authorizationHeader.substring("Bearer ".length());
     }
 }

@@ -3,13 +3,15 @@ package com.example.railway.user;
 public record LoginResponse(
         Long id,
         String username,
-        String status
+        String status,
+        String token
 ) {
-    public static LoginResponse from(User user) {
+    public static LoginResponse from(User user, String token) {
         return new LoginResponse(
                 user.getId(),
                 user.getUsername(),
-                user.getStatus()
+                user.getStatus(),
+                token
         );
     }
 }
