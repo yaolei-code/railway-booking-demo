@@ -100,10 +100,10 @@ Vite 配置了代理：
 本地可以先执行：
 
 ```bash
-mysql -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
+mysql -uroot -p050607 railway_booking -e "source backend/src/main/resources/demo-data.sql"
 ```
 
-然后前端可以查到：
+然后前端可以查到多条演示车票，例如：
 
 ```text
 北京南 -> 上海虹桥
@@ -111,6 +111,8 @@ G101
 2026-06-20
 SECOND_CLASS
 ```
+
+当前演示数据包含 12 个车站、5 趟车、5 个出行日期和多种座位库存。
 
 ## 8. 已验证
 

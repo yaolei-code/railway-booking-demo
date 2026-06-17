@@ -245,19 +245,19 @@ Cancels a pending payment order and releases locked inventory.
 
 ## 7. Current Demo Data
 
-The demo data script creates:
+The demo data script creates multiple stations, trains, schedules, and ticket inventories.
+
+Current seed scope:
 
 ```text
-北京南 -> 上海虹桥
-G101
-2026-06-20
-SECOND_CLASS
-available_count = 100
-price = 553.00
+12 stations
+5 trains
+5 travel dates: 2026-06-20 to 2026-06-24
+multiple route inventories and seat types
 ```
 
 Run the script after `schema.sql`:
 
 ```bash
-mysql -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
+mysql -uroot -p050607 railway_booking -e "source backend/src/main/resources/demo-data.sql"
 ```

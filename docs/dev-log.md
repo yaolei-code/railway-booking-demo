@@ -546,7 +546,44 @@ POST /api/orders/{id}/cancel
 演示数据脚本可以让本地数据库快速恢复到“能查票”的状态：
 
 ```bash
-mysql -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
+mysql -uroot -p050607 railway_booking -e "source backend/src/main/resources/demo-data.sql"
+```
+
+### 本次更新：扩展演示数据规模
+
+更新文件：
+
+- `backend/src/main/resources/demo-data.sql`
+- `README.md`
+- `docs/api-design.md`
+
+演示数据从原来的单条线路扩展为：
+
+```text
+12 个车站
+5 趟车
+5 个出行日期
+95 条库存数据
+多种座位类型
+```
+
+当前包含的车次：
+
+```text
+G101 北京南 -> 上海虹桥
+G103 北京南 -> 上海虹桥，经停天津西、济南西、南京南、杭州东
+D901 上海虹桥 -> 北京南
+G300 广州南 -> 北京南
+G650 西安北 -> 深圳北
+```
+
+已经导入到本地 `railway_booking` 数据库，并确认：
+
+```text
+stations = 12
+trains = 5
+train_daily_schedules = 25
+ticket_inventory = 95
 ```
 
 ### 本次新增：Vue 前端第一版

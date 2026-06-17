@@ -66,6 +66,8 @@ Demo ticket search:
 GET http://localhost:8080/api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20
 ```
 
+The demo script currently seeds 12 stations, 5 trains, 5 travel dates, and multiple seat inventories.
+
 See [docs/api-design.md](docs/api-design.md) for the current backend API list.
 
 ## Local Frontend
