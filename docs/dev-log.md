@@ -709,3 +709,42 @@ app:
 已经验证：
 
 - `mvn test` 通过，结果为 `BUILD SUCCESS`。
+
+### 本次新增：前端管理页第一版
+
+更新文件：
+
+- `frontend/src/App.vue`
+- `README.md`
+- `docs/project-plan.md`
+- `docs/stage-11-admin-frontend-summary.md`
+
+本次继续 Vue 前端，补上第一版管理台页面。
+
+新增前端功能：
+
+- 车站管理：创建、编辑、删除、刷新车站列表。
+- 车次管理：创建、编辑、删除、刷新车次列表。
+- 经停车站管理：选择车次后加载经停路线，可以增删站点并一次保存整条路线。
+- 每日开行创建：为某趟车创建某一天的 `train_daily_schedules` 记录。
+- 库存创建：为某个 schedule 配置出发站、到达站、座位类型、票数和价格。
+
+当前管理页调用的是已有后端接口：
+
+```text
+POST /api/admin/stations
+PUT /api/admin/stations/{id}
+DELETE /api/admin/stations/{id}
+POST /api/admin/trains
+PUT /api/admin/trains/{id}
+DELETE /api/admin/trains/{id}
+PUT /api/admin/trains/{id}/stations
+POST /api/admin/schedules
+POST /api/admin/inventory
+```
+
+注意：这些接口路径虽然带 `/api/admin`，但当前后端还没有真正接入 Spring Security 角色权限校验。也就是说，管理页是“页面和接口调用第一版”，权限控制还属于下一阶段。
+
+已经验证：
+
+- `cd frontend && npm run build` 通过。
