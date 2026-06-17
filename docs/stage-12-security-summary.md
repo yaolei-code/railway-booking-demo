@@ -117,13 +117,13 @@ vite build succeeded
 
 ## 6. 下一阶段建议
 
-下一步可以做：
+下一步已完成：
 
 ```text
 前端路由拆分
 ```
 
-建议把用户端和管理端从一个页面里拆成清晰路由：
+用户端和管理端已经从一个页面拆成清晰路由：
 
 ```text
 /tickets
@@ -132,4 +132,8 @@ vite build succeeded
 /admin
 ```
 
-这样项目会更接近真实企业前端结构。
+对应总结见：
+
+```text
+docs/stage-13-frontend-router-summary.md
+```

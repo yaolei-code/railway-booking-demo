@@ -269,6 +269,7 @@ Detailed API design will be placed in `docs/api-design.md`.
 - Build ticket search page: first version done
 - Build order list and order detail pages: first version done
 - Build simple admin pages: first version done
+- Split frontend routes and protect admin route: first version done
 
 ### Milestone 8: Deployment and Resume Polish
 

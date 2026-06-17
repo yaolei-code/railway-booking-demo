@@ -821,3 +821,56 @@ UPDATE users SET role = 'USER' WHERE role IS NULL OR role = '';
 阶段总结：
 
 - `docs/stage-12-security-summary.md`
+
+### 本次新增：前端路由拆分第一版
+
+本次把前端从单个大 `App.vue` 拆成更接近企业项目的路由结构。
+
+新增依赖：
+
+- `vue-router`
+
+新增代码：
+
+- `frontend/src/router/index.js`：定义前端路由和路由守卫。
+- `frontend/src/services/railwayStore.js`：抽出共享状态、表单数据和 API 调用方法。
+- `frontend/src/views/TicketSearchView.vue`：查票和下单页面。
+- `frontend/src/views/OrdersView.vue`：我的订单页面。
+- `frontend/src/views/AccountView.vue`：登录和注册页面。
+- `frontend/src/views/AdminView.vue`：管理台页面。
+
+更新代码：
+
+- `frontend/src/App.vue`：从业务大页面改成应用布局壳，负责侧边栏、顶部用户状态和 `<RouterView />`。
+- `frontend/src/main.js`：注册 Vue Router。
+- `frontend/src/styles.css`：把原来 `App.vue` 里的布局样式移到全局样式，供各路由页面复用。
+
+当前前端路由：
+
+```text
+/tickets  查票下单
+/orders   我的订单，需要登录
+/account  登录注册
+/admin    管理台，需要 ADMIN 角色
+```
+
+前端路由守卫规则：
+
+```text
+访问 /orders：
+  -> 如果没有登录，跳转 /account
+
+访问 /admin：
+  -> 如果没有登录，跳转 /account
+  -> 如果不是 ADMIN，跳回 /tickets
+```
+
+注意：前端路由守卫只是用户体验层，真正的权限仍然由后端 Spring Security 的 `/api/admin/**` 校验兜底。
+
+已经验证：
+
+- `cd frontend && npm run build` 通过。
+
+阶段总结：
+
+- `docs/stage-13-frontend-router-summary.md`
