@@ -29,13 +29,15 @@
 | password_hash | 加密后的密码 |
 | phone | 手机号 |
 | email | 邮箱 |
+| role | 用户角色，例如 USER、ADMIN |
 | status | 用户状态，例如 ENABLED、DISABLED |
 | created_at | 创建时间 |
 | updated_at | 更新时间 |
 
 说明：密码不能明文保存，必须保存加密后的 `password_hash`。
+第一版为了降低复杂度，直接在 `users.role` 保存角色。后续如果要支持一个用户多个角色，可以再拆成 `roles` 和 `user_roles` 两张表。
 
-### 2.2 roles 角色表
+### 2.2 roles 角色表（后续扩展）
 
 保存系统角色。
 
@@ -45,7 +47,7 @@
 | code | 角色编码，例如 USER、ADMIN |
 | name | 角色名称 |
 
-### 2.3 user_roles 用户角色关联表
+### 2.3 user_roles 用户角色关联表（后续扩展）
 
 表示一个用户有哪些角色。
 
@@ -198,7 +200,7 @@ users n --- n roles
 
 第一版不要一口气做完整系统，按这个顺序推进：
 
-1. 先做用户注册和登录，只用到 `users`、`roles`、`user_roles`。
+1. 先做用户注册和登录，只用到 `users`。
 2. 再做车站管理，只用到 `stations`。
 3. 再做车次和经停车站，只用到 `trains`、`train_stations`。
 4. 再做查票，只用到 `train_daily_schedules`、`ticket_inventory`。
@@ -222,4 +224,3 @@ users n --- n roles
   -> Mapper/DAO
   -> MySQL
 ```
-

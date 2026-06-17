@@ -97,6 +97,7 @@ const inventoryForm = reactive({
 
 const authHeader = computed(() => token.value ? { Authorization: `Bearer ${token.value}` } : {})
 const isLoggedIn = computed(() => Boolean(token.value && currentUser.value))
+const isAdmin = computed(() => currentUser.value?.role === 'ADMIN')
 const stationNameById = computed(() => {
   const map = new Map()
   stations.value.forEach((station) => map.set(station.id, station.name))
@@ -112,6 +113,7 @@ async function request(path, options = {}) {
   const response = await fetch(path, {
     headers: {
       'Content-Type': 'application/json',
+      ...authHeader.value,
       ...(options.headers || {})
     },
     ...options
@@ -152,6 +154,7 @@ async function login() {
     currentUser.value = {
       id: data.id,
       username: data.username,
+      role: data.role,
       status: data.status
     }
     ElMessage.success('登录成功')
@@ -535,7 +538,7 @@ onMounted(async () => {
         <a href="#tickets">查票</a>
         <a href="#orders">订单</a>
         <a href="#account">账号</a>
-        <a href="#admin">管理</a>
+        <a v-if="isAdmin" href="#admin">管理</a>
       </nav>
     </aside>
 
@@ -547,7 +550,8 @@ onMounted(async () => {
         </div>
         <div class="user-box">
           <el-tag v-if="isLoggedIn" type="success">{{ currentUser.username }}</el-tag>
-          <el-tag v-else type="info">未登录</el-tag>
+          <el-tag v-if="isAdmin" type="warning">ADMIN</el-tag>
+          <el-tag v-if="!isLoggedIn" type="info">未登录</el-tag>
           <el-button v-if="isLoggedIn" :icon="LogOut" @click="logout">退出</el-button>
         </div>
       </header>
@@ -729,7 +733,7 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section id="admin" class="admin-section">
+      <section v-if="isAdmin" id="admin" class="admin-section">
         <div class="section-heading">
           <h2>管理台</h2>
           <div class="heading-actions">

@@ -22,7 +22,7 @@ Checks whether the backend service is running.
 
 ### POST /api/users/register
 
-Registers a new user.
+Registers a new user. New registered users use the `USER` role by default.
 
 Request:
 
@@ -37,7 +37,7 @@ Request:
 
 ### POST /api/users/login
 
-Logs in and returns a JWT token.
+Logs in and returns a JWT token. The response includes the user's `role`.
 
 Request:
 
@@ -58,6 +58,43 @@ Header:
 Authorization: Bearer token
 ```
 
+Demo admin account from `demo-data.sql`:
+
+```text
+username: admin
+password: admin123
+role: ADMIN
+```
+
+## 2.1 Security Rules
+
+Public APIs:
+
+```text
+GET /api/health
+POST /api/users/register
+POST /api/users/login
+GET /api/stations
+GET /api/trains
+GET /api/trains/{id}/stations
+GET /api/tickets/search
+```
+
+Logged-in user APIs:
+
+```text
+GET /api/users/me
+/api/orders/**
+```
+
+Admin-only APIs:
+
+```text
+/api/admin/**
+```
+
+Admin APIs require a JWT whose user role is `ADMIN`.
+
 ## 3. Stations
 
 ### GET /api/stations
@@ -73,6 +110,12 @@ keyword=北京
 ### POST /api/admin/stations
 
 Creates a station.
+
+Requires:
+
+```text
+Authorization: Bearer admin-token
+```
 
 Request:
 
@@ -107,6 +150,12 @@ keyword=G
 ### POST /api/admin/trains
 
 Creates a train.
+
+Requires:
+
+```text
+Authorization: Bearer admin-token
+```
 
 Request:
 
@@ -159,6 +208,12 @@ Request:
 
 Creates a daily train schedule.
 
+Requires:
+
+```text
+Authorization: Bearer admin-token
+```
+
 Request:
 
 ```json
@@ -172,6 +227,12 @@ Request:
 ### POST /api/admin/inventory
 
 Creates ticket inventory.
+
+Requires:
+
+```text
+Authorization: Bearer admin-token
+```
 
 Request:
 
@@ -250,6 +311,7 @@ The demo data script creates multiple stations, trains, schedules, and ticket in
 Current seed scope:
 
 ```text
+demo admin account: admin / admin123
 12 stations
 5 trains
 5 travel dates: 2026-06-20 to 2026-06-24

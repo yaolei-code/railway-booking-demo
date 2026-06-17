@@ -748,3 +748,76 @@ POST /api/admin/inventory
 已经验证：
 
 - `cd frontend && npm run build` 通过。
+
+### 本次新增：Spring Security 角色权限第一版
+
+本次继续把项目往真实企业项目方向推进，解决上一阶段留下的问题：
+
+```text
+管理页面已经有了，但普通用户理论上也可以直接请求 /api/admin/**
+```
+
+新增后端依赖：
+
+- `spring-boot-starter-security`
+
+新增代码：
+
+- `security/JwtAuthenticationFilter.java`：从 `Authorization: Bearer token` 中解析 JWT，查询用户，并把用户角色放入 Spring Security 上下文。
+- `security/SecurityConfig.java`：配置接口访问规则，关闭 session，使用无状态 JWT 认证。
+
+更新代码：
+
+- `User.java`：新增 `role` 字段。
+- `UserService.java`：注册用户默认角色为 `USER`。
+- `JwtService.java`：JWT 中写入 `role`。
+- `LoginResponse.java` / `UserResponse.java`：返回当前用户角色。
+- `frontend/src/App.vue`：登录后读取 role，只有 `ADMIN` 显示管理台；请求会自动带 JWT。
+- `schema.sql`：`users` 表新增 `role` 字段。
+- `demo-data.sql`：新增演示管理员账号。
+- `api-tests.http`：管理员接口补充 `Authorization` 请求头。
+
+当前权限规则：
+
+```text
+公开接口：
+GET /api/health
+POST /api/users/register
+POST /api/users/login
+GET /api/stations
+GET /api/trains
+GET /api/trains/{id}/stations
+GET /api/tickets/search
+
+登录用户接口：
+GET /api/users/me
+/api/orders/**
+
+管理员接口：
+/api/admin/**
+```
+
+演示管理员账号：
+
+```text
+username: admin
+password: admin123
+```
+
+已经对本地数据库执行过一次迁移：
+
+```sql
+ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'USER' AFTER email;
+UPDATE users SET role = 'USER' WHERE role IS NULL OR role = '';
+```
+
+并插入了 `admin` 管理员账号。
+
+已经验证：
+
+- `cd backend && mvn test` 通过。
+- `cd frontend && npm run build` 通过。
+
+阶段总结：
+
+- `docs/stage-12-security-summary.md`

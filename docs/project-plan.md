@@ -69,7 +69,7 @@ Features:
 Main tables:
 
 - users
-- user_roles
+- roles and user_roles can be added later; the first version uses `users.role`
 
 ### 4.2 Station Module
 
@@ -187,9 +187,11 @@ docs/api-design.md
 
 Public APIs:
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
+- `POST /api/users/register`
+- `POST /api/users/login`
 - `GET /api/stations`
+- `GET /api/trains`
+- `GET /api/trains/{id}/stations`
 - `GET /api/tickets/search`
 
 User APIs:
@@ -230,6 +232,7 @@ Detailed API design will be placed in `docs/api-design.md`.
 - Add password encryption: done
 - Add JWT token issuance: done
 - Add current-user endpoint: done
+- Add Spring Security role protection: first version done
 
 ### Milestone 3: Station and Train Data
 

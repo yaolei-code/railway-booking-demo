@@ -30,7 +30,7 @@ This project is designed for a Java backend / full-stack developer resume. It fo
 
 ## Development Status
 
-Current stage: backend core workflow completed in first version, including user, station, train, ticket search, order, payment, cancellation, unpaid order timeout handling, and database-level anti-oversell. The Vue frontend now includes the first user workflow pages and the first admin management pages for stations, trains, routes, schedules, and inventory creation.
+Current stage: backend core workflow completed in first version, including user, station, train, ticket search, order, payment, cancellation, unpaid order timeout handling, and database-level anti-oversell. The Vue frontend now includes the first user workflow pages and the first admin management pages for stations, trains, routes, schedules, and inventory creation. Spring Security now protects `/api/admin/**` with the `ADMIN` role.
 
 See [docs/project-plan.md](docs/project-plan.md) for the detailed development plan.
 
@@ -67,6 +67,13 @@ GET http://localhost:8080/api/tickets/search?departureStationId=1&arrivalStation
 ```
 
 The demo script currently seeds 12 stations, 5 trains, 5 travel dates, and multiple seat inventories.
+
+Demo admin account:
+
+```text
+username: admin
+password: admin123
+```
 
 See [docs/api-design.md](docs/api-design.md) for the current backend API list.
 

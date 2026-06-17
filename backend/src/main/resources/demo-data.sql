@@ -1,3 +1,19 @@
+INSERT INTO users (username, password_hash, phone, email, role, status, created_at, updated_at)
+VALUES (
+    'admin',
+    '$2a$10$NLjXvjsiqNWdoIdBNHOuJuvnF2sM5jn7vuY0n5tNvxhkQId4VM5Na',
+    '13800000001',
+    'admin@example.com',
+    'ADMIN',
+    'ENABLED',
+    NOW(),
+    NOW()
+)
+ON DUPLICATE KEY UPDATE
+    role = 'ADMIN',
+    status = 'ENABLED',
+    updated_at = NOW();
+
 INSERT IGNORE INTO stations (name, city, code, created_at, updated_at)
 VALUES
     ('北京南', '北京', 'BJN', NOW(), NOW()),

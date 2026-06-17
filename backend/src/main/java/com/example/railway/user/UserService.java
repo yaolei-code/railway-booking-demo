@@ -38,6 +38,7 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setPhone(request.phone());
         user.setEmail(request.email());
+        user.setRole("USER");
         user.setStatus("ENABLED");
         user.setCreatedAt(now);
         user.setUpdatedAt(now);

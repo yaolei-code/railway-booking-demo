@@ -3,6 +3,7 @@ package com.example.railway.user;
 public record LoginResponse(
         Long id,
         String username,
+        String role,
         String status,
         String token
 ) {
@@ -10,6 +11,7 @@ public record LoginResponse(
         return new LoginResponse(
                 user.getId(),
                 user.getUsername(),
+                user.getRole(),
                 user.getStatus(),
                 token
         );
