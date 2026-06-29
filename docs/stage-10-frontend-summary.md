@@ -100,7 +100,7 @@ Vite 配置了代理：
 本地可以先执行：
 
 ```bash
-mysql -uroot -p050607 railway_booking -e "source backend/src/main/resources/demo-data.sql"
+mysql --default-character-set=utf8mb4 -uroot -p050607 railway_booking -e "source backend/src/main/resources/demo-data.sql"
 ```
 
 然后前端可以查到多条演示车票，例如：

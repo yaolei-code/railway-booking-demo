@@ -20,6 +20,8 @@ public class TicketOrderItem {
 
     private Long scheduleId;
 
+    private Long inventoryId;
+
     private Long departureStationId;
 
     private Long arrivalStationId;
@@ -66,6 +68,14 @@ public class TicketOrderItem {
 
     public void setScheduleId(Long scheduleId) {
         this.scheduleId = scheduleId;
+    }
+
+    public Long getInventoryId() {
+        return inventoryId;
+    }
+
+    public void setInventoryId(Long inventoryId) {
+        this.inventoryId = inventoryId;
     }
 
     public Long getDepartureStationId() {

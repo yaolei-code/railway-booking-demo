@@ -874,3 +874,39 @@ UPDATE users SET role = 'USER' WHERE role IS NULL OR role = '';
 阶段总结：
 
 - `docs/stage-13-frontend-router-summary.md`
+
+### 本次新增：Knife4j / OpenAPI 接口文档第一版
+
+本次继续做项目收尾打磨，把已有后端接口接入可视化 API 文档。
+
+新增后端依赖：
+
+- `knife4j-openapi3-jakarta-spring-boot-starter`
+
+新增代码：
+
+- `config/OpenApiConfig.java`：配置 OpenAPI 标题、描述、版本和 JWT Bearer 认证方案。
+
+更新代码：
+
+- `SecurityConfig.java`：放行 `/doc.html`、`/swagger-ui.html`、`/swagger-ui/**`、`/v3/api-docs/**`、`/webjars/**`。
+- 各 Controller：补充 `@Tag`、`@Operation`、`@SecurityRequirement`，让文档按业务模块展示。
+- 请求 DTO：补充 `@Schema` 示例值，让接口文档里能看到请求参数示例。
+- `SecurityAuthorizationTests.java`：新增 `/v3/api-docs` 不需要登录的测试。
+- `README.md`、`docs/api-design.md`、`docs/project-plan.md`：补充接口文档入口和阶段状态。
+
+启动后可以访问：
+
+```text
+Knife4j UI: http://localhost:8080/doc.html
+Swagger UI: http://localhost:8080/swagger-ui.html
+OpenAPI JSON: http://localhost:8080/v3/api-docs
+```
+
+已经验证：
+
+- `cd backend && mvn test` 通过。
+
+阶段总结：
+
+- `docs/stage-14-openapi-summary.md`

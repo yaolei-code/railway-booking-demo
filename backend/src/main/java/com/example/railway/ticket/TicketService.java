@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,6 +27,7 @@ public class TicketService {
 
     private final TrainDailyScheduleMapper scheduleMapper;
     private final TicketInventoryMapper inventoryMapper;
+    private final RedisInventoryService redisInventoryService;
     private final TrainMapper trainMapper;
     private final TrainStationMapper trainStationMapper;
     private final StationMapper stationMapper;
@@ -33,12 +35,14 @@ public class TicketService {
     public TicketService(
             TrainDailyScheduleMapper scheduleMapper,
             TicketInventoryMapper inventoryMapper,
+            RedisInventoryService redisInventoryService,
             TrainMapper trainMapper,
             TrainStationMapper trainStationMapper,
             StationMapper stationMapper
     ) {
         this.scheduleMapper = scheduleMapper;
         this.inventoryMapper = inventoryMapper;
+        this.redisInventoryService = redisInventoryService;
         this.trainMapper = trainMapper;
         this.trainStationMapper = trainStationMapper;
         this.stationMapper = stationMapper;
@@ -110,6 +114,8 @@ public class TicketService {
         inventory.setPrice(request.price());
 
         inventoryMapper.insert(inventory);
+        // 同步到 Redis，让后续搜索和下单可以走缓存
+        redisInventoryService.saveInventory(inventory);
         log.info("Ticket inventory created successfully: inventoryId={}, scheduleId={}, seatType={}",
                 inventory.getId(), inventory.getScheduleId(), inventory.getSeatType());
         return InventoryResponse.from(inventory);
@@ -134,10 +140,35 @@ public class TicketService {
             queryWrapper.eq(TicketInventory::getSeatType, seatType);
         }
 
-        return inventoryMapper.selectList(queryWrapper).stream()
-                .map(inventory -> toTicketSearchResponse(inventory, travelDate))
-                .filter(Objects::nonNull)
-                .toList();
+        List<TicketInventory> inventories = inventoryMapper.selectList(queryWrapper);
+        List<TicketSearchResponse> result = new ArrayList<>();
+
+        for (TicketInventory inventory : inventories) {
+            TicketSearchResponse response = toTicketSearchResponse(inventory, travelDate);
+            if (response == null) {
+                continue;
+            }
+            // 尝试从 Redis 读取更实时的可用票数，Redis 不可用时退回 DB 值
+            enrichAvailableCount(response, inventory);
+            result.add(response);
+        }
+        return result;
+    }
+
+    /** 如果 Redis 中有该库存的最新可用数，用它替换搜索结果中的 DB 值。 */
+    private void enrichAvailableCount(TicketSearchResponse response, TicketInventory inventory) {
+        try {
+            Integer redisAvailable = redisInventoryService.getAvailableCount(inventory.getId());
+            if (redisAvailable != null) {
+                // Redis 有值：用更实时的 Redis 数值（可能已被并发下单扣减）
+                response.setAvailableCount(redisAvailable);
+            } else {
+                // Redis key 不存在：把 DB 值写回 Redis 做懒加载
+                redisInventoryService.saveInventory(inventory);
+            }
+        } catch (Exception e) {
+            // Redis 不可用：保持 DB 原值，静默降级
+        }
     }
 
     private TicketSearchResponse toTicketSearchResponse(TicketInventory inventory, LocalDate travelDate) {

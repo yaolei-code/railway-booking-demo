@@ -30,9 +30,45 @@ This project is designed for a Java backend / full-stack developer resume. It fo
 
 ## Development Status
 
-Current stage: backend core workflow completed in first version, including user, station, train, ticket search, order, payment, cancellation, unpaid order timeout handling, and database-level anti-oversell. Spring Security protects `/api/admin/**` with the `ADMIN` role. The Vue frontend has been split into route-based user and admin pages.
+Current stage: backend core workflow completed in first version, including user, station, train, ticket search, order, payment, cancellation, unpaid order timeout handling, and database-level anti-oversell. Spring Security protects `/api/admin/**` with the `ADMIN` role. The Vue frontend has been split into route-based user and admin pages. Knife4j / OpenAPI documentation is available for backend APIs.
 
 See [docs/project-plan.md](docs/project-plan.md) for the detailed development plan.
+
+## Quick Start (Docker Compose)
+
+One command to start MySQL, backend, and frontend:
+
+```bash
+docker compose up -d
+```
+
+This will:
+- Start MySQL 8.0, auto-create tables and load demo data
+- Build and start the Spring Boot backend
+- Build and start the Vue frontend (served by Nginx)
+
+After startup:
+
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:5173 |
+| API health | http://localhost:8080/api/health |
+| Knife4j docs | http://localhost:8080/doc.html |
+| Swagger UI | http://localhost:8080/swagger-ui.html |
+
+Stop everything:
+
+```bash
+docker compose down
+```
+
+To rebuild after code changes:
+
+```bash
+docker compose up -d --build
+```
+
+> **Prerequisites:** Docker and Docker Compose. [Get Docker](https://docs.docker.com/get-docker/).
 
 ## Local Backend
 
@@ -54,10 +90,18 @@ Health check:
 GET http://localhost:8080/api/health
 ```
 
+API documentation:
+
+```text
+Knife4j UI: http://localhost:8080/doc.html
+Swagger UI: http://localhost:8080/swagger-ui.html
+OpenAPI JSON: http://localhost:8080/v3/api-docs
+```
+
 Load demo data after creating the schema:
 
 ```bash
-mysql -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
+mysql --default-character-set=utf8mb4 -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
 ```
 
 Demo ticket search:

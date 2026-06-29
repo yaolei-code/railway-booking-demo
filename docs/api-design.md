@@ -12,6 +12,18 @@ All successful responses use the same wrapper:
 }
 ```
 
+## 0. Interactive API Documentation
+
+The backend exposes Knife4j / OpenAPI documentation after startup:
+
+```text
+Knife4j UI: http://localhost:8080/doc.html
+Swagger UI: http://localhost:8080/swagger-ui.html
+OpenAPI JSON: http://localhost:8080/v3/api-docs
+```
+
+For APIs that require login, first call `POST /api/users/login`, copy the returned `token`, then use the OpenAPI authorize button with the JWT token.
+
 ## 1. Health
 
 ### GET /api/health
@@ -321,5 +333,5 @@ multiple route inventories and seat types
 Run the script after `schema.sql`:
 
 ```bash
-mysql -uroot -p050607 railway_booking -e "source backend/src/main/resources/demo-data.sql"
+mysql --default-character-set=utf8mb4 -uroot -p050607 railway_booking -e "source backend/src/main/resources/demo-data.sql"
 ```

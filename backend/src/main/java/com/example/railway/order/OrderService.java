@@ -2,6 +2,7 @@ package com.example.railway.order;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.railway.common.UnauthorizedException;
+import com.example.railway.ticket.RedisInventoryService;
 import com.example.railway.ticket.TicketInventory;
 import com.example.railway.ticket.TicketInventoryMapper;
 import com.example.railway.user.JwtService;
@@ -25,6 +26,7 @@ public class OrderService {
     private final TicketOrderMapper orderMapper;
     private final TicketOrderItemMapper orderItemMapper;
     private final TicketInventoryMapper inventoryMapper;
+    private final RedisInventoryService redisInventoryService;
     private final JwtService jwtService;
     private final long paymentTimeoutMinutes;
 
@@ -32,12 +34,14 @@ public class OrderService {
             TicketOrderMapper orderMapper,
             TicketOrderItemMapper orderItemMapper,
             TicketInventoryMapper inventoryMapper,
+            RedisInventoryService redisInventoryService,
             JwtService jwtService,
             @Value("${app.order.payment-timeout-minutes:15}") long paymentTimeoutMinutes
     ) {
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.inventoryMapper = inventoryMapper;
+        this.redisInventoryService = redisInventoryService;
         this.jwtService = jwtService;
         this.paymentTimeoutMinutes = paymentTimeoutMinutes;
     }
@@ -51,8 +55,26 @@ public class OrderService {
             throw new IllegalArgumentException("ticket inventory not found");
         }
 
+        // 第1层：Redis 原子锁（快速拦掉售罄请求，减轻数据库压力）
+        boolean redisLocked = false;
+        boolean redisAvailable = false;
+        try {
+            redisLocked = redisInventoryService.lockOne(inventory.getId());
+            redisAvailable = true;
+        } catch (Exception e) {
+            log.warn("Redis lock unavailable, fallback to DB-only: inventoryId={}", inventory.getId(), e);
+        }
+        if (redisAvailable && !redisLocked) {
+            throw new IllegalArgumentException("ticket is sold out");
+        }
+
+        // 第2层：数据库原子锁（事实来源，真正保证不超卖）
         int lockedRows = inventoryMapper.lockOneTicket(inventory.getId());
         if (lockedRows == 0) {
+            // 数据库说售罄，回滚 Redis（如果刚才锁成功了）
+            if (redisLocked) {
+                redisInventoryService.releaseOne(inventory.getId());
+            }
             throw new IllegalArgumentException("ticket is sold out");
         }
 
@@ -72,6 +94,7 @@ public class OrderService {
         item.setPassengerName(request.passengerName());
         item.setPassengerIdNo(request.passengerIdNo());
         item.setScheduleId(inventory.getScheduleId());
+        item.setInventoryId(inventory.getId());
         item.setDepartureStationId(inventory.getDepartureStationId());
         item.setArrivalStationId(inventory.getArrivalStationId());
         item.setSeatType(inventory.getSeatType());
@@ -168,6 +191,10 @@ public class OrderService {
             );
             if (releasedRows == 0) {
                 throw new IllegalArgumentException("locked ticket count is invalid");
+            }
+            // 同步 Redis：取消/超时后把票还回可用池
+            if (item.getInventoryId() != null) {
+                redisInventoryService.releaseOne(item.getInventoryId());
             }
         }
     }

@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 INSERT INTO users (username, password_hash, phone, email, role, status, created_at, updated_at)
 VALUES (
     'admin',

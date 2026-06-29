@@ -41,7 +41,12 @@ public class SecurityConfig {
                                 "/api/stations",
                                 "/api/trains",
                                 "/api/trains/*/stations",
-                                "/api/tickets/search"
+                                "/api/tickets/search",
+                                "/doc.html",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/me", "/api/orders/**").authenticated()

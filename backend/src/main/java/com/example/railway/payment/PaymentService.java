@@ -6,6 +6,7 @@ import com.example.railway.order.TicketOrder;
 import com.example.railway.order.TicketOrderItem;
 import com.example.railway.order.TicketOrderItemMapper;
 import com.example.railway.order.TicketOrderMapper;
+import com.example.railway.ticket.RedisInventoryService;
 import com.example.railway.ticket.TicketInventoryMapper;
 import com.example.railway.user.JwtService;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class PaymentService {
     private final TicketOrderMapper orderMapper;
     private final TicketOrderItemMapper orderItemMapper;
     private final TicketInventoryMapper inventoryMapper;
+    private final RedisInventoryService redisInventoryService;
     private final JwtService jwtService;
 
     public PaymentService(
@@ -34,12 +36,14 @@ public class PaymentService {
             TicketOrderMapper orderMapper,
             TicketOrderItemMapper orderItemMapper,
             TicketInventoryMapper inventoryMapper,
+            RedisInventoryService redisInventoryService,
             JwtService jwtService
     ) {
         this.paymentMapper = paymentMapper;
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.inventoryMapper = inventoryMapper;
+        this.redisInventoryService = redisInventoryService;
         this.jwtService = jwtService;
     }
 
@@ -96,6 +100,10 @@ public class PaymentService {
             );
             if (confirmedRows == 0) {
                 throw new IllegalArgumentException("locked ticket count is invalid");
+            }
+            // 同步 Redis：支付成功后 lockedCount - 1
+            if (item.getInventoryId() != null) {
+                redisInventoryService.confirmOne(item.getInventoryId());
             }
         }
     }

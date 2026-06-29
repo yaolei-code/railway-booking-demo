@@ -21,6 +21,7 @@ Core highlights:
 - Ticket query and order workflow
 - Redis inventory cache and anti-oversell design
 - Scheduled task for unpaid order timeout cancellation
+- Knife4j / OpenAPI interactive API documentation
 - Docker Compose local deployment
 - Clear README, API documentation, and database scripts
 
@@ -274,7 +275,7 @@ Detailed API design will be placed in `docs/api-design.md`.
 ### Milestone 8: Deployment and Resume Polish
 
 - Add Docker Compose for MySQL, Redis, backend, and frontend
-- Add API documentation
+- Add API documentation: Knife4j / OpenAPI first version done
 - Improve README
 - Add screenshots
 - Write resume bullet points
@@ -312,4 +313,4 @@ Keep important decisions in docs so the project context is not locked inside one
 
 Next recommended task:
 
-Create the Spring Boot backend skeleton and define the first version of the database design.
+Continue project polish: improve README for interview presentation, add screenshots, or add Docker Compose for one-command local startup.

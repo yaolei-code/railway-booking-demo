@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS ticket_order_items (
     passenger_name VARCHAR(50) NOT NULL,
     passenger_id_no VARCHAR(30) NOT NULL,
     schedule_id BIGINT NOT NULL,
+    inventory_id BIGINT,
     departure_station_id BIGINT NOT NULL,
     arrival_station_id BIGINT NOT NULL,
     seat_type VARCHAR(30) NOT NULL,

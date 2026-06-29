@@ -27,6 +27,13 @@ class SecurityAuthorizationTests {
     }
 
     @Test
+    void openApiDocsDoNotRequireLogin() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.openapi").exists());
+    }
+
+    @Test
     void adminApiRequiresLogin() throws Exception {
         mockMvc.perform(post("/api/admin/stations")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -17,6 +17,13 @@ Thumbs.db
 # Logs
 *.log
 
+# Environment / local tool config
+.env
+.env.*
+!.env.example
+.reasonix/
+reasonix.toml
+
 # Frontend
 node_modules/
 dist/
