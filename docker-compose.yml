@@ -8,8 +8,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: railway_booking
-    ports:
-      - "3306:3306"
     volumes:
       # 数据库文件持久化（容器删掉后数据不丢）
       - mysql-data:/var/lib/mysql
@@ -27,8 +25,6 @@ services:
   redis:
     image: redis:7-alpine
     container_name: railway-redis
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -49,7 +45,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-root}
       REDIS_HOST: ${REDIS_HOST:-redis}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     depends_on:
       mysql:
         condition: service_healthy
