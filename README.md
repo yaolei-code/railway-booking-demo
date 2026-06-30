@@ -1,188 +1,141 @@
 # 铁路订票系统 Railway Booking Demo
 
-这是一个面向 Java 后端 / 全栈开发岗位的铁路订票系统项目。项目覆盖用户登录、车票查询、订单创建、模拟支付、订单取消、库存防超卖、管理员后台、接口文档和 Docker Compose 部署等完整链路，适合作为简历项目和面试讲解项目。
+> 一个面向 Java 后端 / 全栈岗位的完整练手项目 —— 从数据库设计到 Docker 部署，覆盖真实订票业务全链路。
 
 ## 项目亮点
 
-- 基于 Spring Boot 3 构建分层后端，包含 Controller、Service、Mapper、Entity 等常见企业项目结构。
-- 使用 Spring Security + JWT 实现登录认证和角色权限控制，普通用户为 `USER`，管理员为 `ADMIN`。
-- 支持车站、车次、经停车站、每日开行计划、车票库存、订单和支付等铁路订票核心业务模型。
-- 下单时使用 Redis Lua 原子锁票，并使用 MySQL 原子 `UPDATE ... WHERE available_count > 0` 作为最终防超卖兜底。
-- 支持未支付订单定时超时取消，自动释放锁定库存。
-- Vue 3 前端已拆分为查票、订单、账号、管理台等页面路由。
-- 接入 Knife4j / OpenAPI，可在浏览器中查看和调试后端接口。
-- 提供 Docker Compose，可一键启动 MySQL、Redis、后端和前端。
+- 🚄 **完整业务链路**：用户 → 查票 → 下单 → 支付 → 取消 → 超时回收，状态流转清晰
+- 🛡️ **双重防超卖**：Redis Lua 原子锁票（快车道）+ MySQL 原子 UPDATE 兜底（最终防线），Redis 不可用时自动降级
+- 🔐 **JWT + 角色权限**：Spring Security 拦截 `/api/admin/**`，普通用户 `USER` 和管理员 `ADMIN` 分离
+- ⏱️ **定时超时取消**：`@Scheduled` 每分钟扫描超时未支付订单，自动释放锁定库存
+- 🐳 **一键部署**：`docker compose up -d` 启动 MySQL + Redis + 后端 + 前端，开箱即用
+- 📄 **接口文档**：Knife4j / Swagger 在线调试，不用 Postman
+- 🎨 **Vue 3 前端**：Element Plus UI，四页面 + 路由守卫，前后端通过 Nginx 代理联调
+
+## 系统架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Docker Compose                           │
+│                                                             │
+│  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐ │
+│  │  MySQL   │   │  Redis   │   │  Backend │   │ Frontend │ │
+│  │  :3306   │   │  :6379   │   │  :8080   │   │  :5173   │ │
+│  │  数据    │   │  缓存    │   │ Spring   │   │  Nginx   │ │
+│  │  持久化  │   │  库存    │   │ Boot 3   │   │  Vue 3   │ │
+│  └────┬─────┘   └────┬─────┘   └────┬─────┘   └────┬─────┘ │
+│       │              │              │              │        │
+│       └──────────────┴──────┬───────┘              │        │
+│                             │  /api 代理 ──────────┘        │
+└─────────────────────────────┘                               │
+                              │
+                              ▼
+                      ┌──────────────┐
+                      │   浏览器      │
+                      │ localhost:5173│
+                      └──────────────┘
+```
+
+**库存防超卖双层锁流程：**
+
+```
+下单请求 ──→ Redis Lua 原子锁（~微秒）──→ 售罄？──→ 直接拒绝
+                  │ 锁成功
+                  ▼
+            MySQL 原子 UPDATE （~毫秒）──→ 售罄？──→ 回滚 Redis，拒绝
+                  │ 锁成功
+                  ▼
+              创建订单 ✓
+```
 
 ## 技术栈
 
-后端：
-
-- Java 17
-- Spring Boot 3
-- Spring Security
-- JWT
-- MyBatis-Plus
-- MySQL
-- Redis
-- Knife4j / OpenAPI
-
-前端：
-
-- Vue 3
-- Vite
-- Element Plus
-- Vue Router
-
-部署：
-
-- Docker
-- Docker Compose
-- Nginx
+| 层级 | 技术 |
+|------|------|
+| 后端框架 | Java 17 · Spring Boot 3 · Spring Security |
+| 认证 | JWT（jjwt） |
+| 持久层 | MyBatis-Plus · MySQL 8.0 |
+| 缓存 | Redis 7 · Lettuce 连接池 · Lua 脚本 |
+| 前端 | Vue 3 · Vite · Element Plus · Vue Router |
+| 文档 | Knife4j · Swagger · OpenAPI 3 |
+| 部署 | Docker · Docker Compose · Nginx |
 
 ## 已实现功能
 
-- 用户注册、登录、JWT 签发和当前用户查询
-- 车站列表和管理员车站管理
-- 车次列表、车次管理和经停车站管理
-- 按出发站、到达站、日期和座位类型查询余票
-- 创建订单并锁定库存
-- 模拟支付并确认库存
-- 取消未支付订单并释放库存
-- 定时扫描并取消超时未支付订单
-- 管理员接口权限控制
-- 前端路由守卫和管理员页面
-- Knife4j / Swagger 接口文档
-- Docker Compose 本地部署
+| 模块 | 功能 |
+|------|------|
+| 用户 | 注册、登录、JWT 签发、个人信息查询、角色区分 |
+| 车站 | 列表查询、管理员增删改、按城市/名称搜索 |
+| 车次 | 列表、详情、经停车站管理、时刻表 |
+| 余票 | 按起止站 + 日期 + 座位类型搜索，Redis 缓存加速 |
+| 订单 | 创建（自动锁库存）、列表、详情、取消、状态流转 |
+| 支付 | 模拟支付、支付记录、支付后确认库存 |
+| 定时 | 每分钟扫描超时未支付订单，自动取消并释放库存 |
+| 权限 | USER/ADMIN 角色、`/api/admin/**` 拦截、前端路由守卫 |
+| 文档 | Knife4j + Swagger 在线调试 |
+| 部署 | Docker Compose 一键启动四服务 |
 
-## 项目结构
-
-```text
-railway-booking-demo
-├── backend    Spring Boot 后端
-├── frontend   Vue 3 前端
-├── docs       项目设计文档和阶段总结
-└── docker-compose.yml
-```
-
-## 快速启动（Docker Compose）
-
-项目根目录执行：
+## 快速启动
 
 ```bash
-docker compose up -d
-```
+# 1. 克隆项目
+git clone <repo-url> && cd railway-booking-demo
 
-启动后访问：
+# 2. 一键启动（首次需下载镜像，约 3-5 分钟）
+docker compose up -d
+
+# 3. 打开浏览器
+#    前端:      http://localhost:5173
+#    接口文档:  http://localhost:8080/doc.html
+#    管理员:    admin / admin123
+```
 
 | 服务 | 地址 |
-| --- | --- |
+|------|------|
 | 前端页面 | http://localhost:5173 |
-| 后端健康检查 | http://localhost:8080/api/health |
 | Knife4j 接口文档 | http://localhost:8080/doc.html |
 | Swagger UI | http://localhost:8080/swagger-ui.html |
+| 健康检查 | http://localhost:8080/api/health |
 
-停止服务：
+停止：`docker compose down`　｜　重建：`docker compose up -d --build`
 
-```bash
-docker compose down
-```
+## 项目截图
 
-代码变更后重新构建：
+> 启动项目后截取以下页面替换此处占位图。
 
-```bash
-docker compose up -d --build
-```
-
-## 本地后端启动
-
-进入后端目录：
-
-```bash
-cd backend
-mvn spring-boot:run
-```
-
-健康检查：
-
-```text
-GET http://localhost:8080/api/health
-```
-
-接口文档：
-
-```text
-Knife4j UI: http://localhost:8080/doc.html
-Swagger UI: http://localhost:8080/swagger-ui.html
-OpenAPI JSON: http://localhost:8080/v3/api-docs
-```
-
-## 本地前端启动
-
-进入前端目录：
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-默认访问地址：
-
-```text
-http://localhost:5173
-```
-
-前端路由：
-
-```text
-/tickets   查票下单
-/orders    我的订单
-/account   登录注册
-/admin     管理台
-```
+| 页面 | 截图 |
+|------|------|
+| 查票下单页 | ![ticket-search](docs/screenshots/ticket-search.png) |
+| 我的订单页 | ![orders](docs/screenshots/orders.png) |
+| 登录注册页 | ![account](docs/screenshots/account.png) |
+| 管理台 | ![admin](docs/screenshots/admin.png) |
+| Knife4j 文档 | ![knife4j](docs/screenshots/knife4j.png) |
 
 ## 演示数据
 
-Docker Compose 会自动执行建表和演示数据初始化脚本。手动导入时可执行：
+Docker Compose 自动建表并灌入演示数据（12 个车站 · 5 趟车 · 5 个出行日期 · 多条库存）：
+
+```text
+管理员账号: admin / admin123
+查票示例:   GET /api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20
+```
+
+## 本地开发
 
 ```bash
-mysql --default-character-set=utf8mb4 -uroot -p050607 railway_booking < backend/src/main/resources/demo-data.sql
+# 后端（需要本地 MySQL 和 Redis）
+cd backend && mvn spring-boot:run
+
+# 前端
+cd frontend && npm install && npm run dev
 ```
 
-演示数据包含：
+## 📂 更多文档
 
-- 12 个车站
-- 5 趟车
-- 5 个出行日期
-- 多条区间库存和座位类型
-
-演示管理员账号：
-
-```text
-username: admin
-password: admin123
-```
-
-演示查票接口：
-
-```text
-GET http://localhost:8080/api/tickets/search?departureStationId=1&arrivalStationId=2&travelDate=2026-06-20
-```
-
-## 面试讲解重点
-
-可以重点讲这几部分：
-
-- 数据库表设计：用户、车站、车次、经停车站、每日开行、库存、订单、支付。
-- 订单状态流转：`PENDING_PAYMENT -> PAID / CANCELLED`。
-- 库存防超卖：Redis Lua 原子锁票 + MySQL 原子更新兜底。
-- 权限设计：JWT 登录态、`USER / ADMIN` 角色、`/api/admin/**` 管理员保护。
-- 超时取消：定时任务扫描未支付订单并释放库存。
-- 前后端联调：Vue 页面通过 `/api` 代理调用 Spring Boot 接口。
-
-## 更多文档
-
-- [项目计划](docs/project-plan.md)
-- [API 设计](docs/api-design.md)
-- [数据库设计](docs/database-design.md)
-- [开发日志](docs/dev-log.md)
+| 文档 | 说明 |
+|------|------|
+| [项目计划](docs/project-plan.md) | 完整里程碑和任务拆解 |
+| [数据库设计](docs/database-design.md) | 14 张表 ER 说明 |
+| [API 设计](docs/api-design.md) | 所有接口定义 |
+| [开发日志](docs/dev-log.md) | 每个阶段的实现记录 |
+| [简历要点](docs/resume-bullet-points.md) | 可直接复制到简历的项目描述 |

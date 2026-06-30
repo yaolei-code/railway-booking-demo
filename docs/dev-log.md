@@ -910,3 +910,97 @@ OpenAPI JSON: http://localhost:8080/v3/api-docs
 阶段总结：
 
 - `docs/stage-14-openapi-summary.md`
+
+---
+
+## Stage 15: Redis 库存缓存 + Lua 原子扣减
+
+日期：2026-06-28
+
+完成的改动：
+
+### 添加 Redis 依赖和配置
+
+- `pom.xml` 新增 `spring-boot-starter-data-redis` 和 `commons-pool2`
+- `application.yml` 新增 Redis 连接配置（`REDIS_HOST` / `REDIS_PORT` 环境变量可覆盖）
+
+### 创建 RedisInventoryService
+
+新文件：`ticket/RedisInventoryService.java`
+
+核心设计：
+
+- Redis 数据结构：Hash `inventory:{inventoryId}`，字段 `availableCount` / `lockedCount` / `totalCount` / `price`
+- 3 个 Lua 脚本：`lockOne`（检查后扣减）、`confirmOne`（支付后清理）、`releaseOne`（取消后归还）
+- 启动预热：`@PostConstruct` 全量加载库存到 Redis，不可用时静默跳过
+- 优雅降级：lockOne 抛异常让调用方降级；confirmOne/releaseOne 静默容错
+
+### 改造下单流程（双层锁）
+
+```text
+下单 → Redis Lua 原子锁 → 售罄？→ 拒绝
+           ↓ 成功
+       MySQL 原子 UPDATE → 售罄？→ 回滚 Redis，拒绝
+           ↓ 成功
+         创建订单
+```
+
+### 改造支付、取消、搜索
+
+- **支付**：DB confirmLockedTicket → Redis confirmOne（lockedCount - 1）
+- **取消/超时**：DB releaseLockedTicket → Redis releaseOne（availableCount + 1, lockedCount - 1）
+- **搜索**：优先读 Redis availableCount（更快更实时），miss 时懒加载写回；Redis 不可用降级到 DB 值
+- **管理员创建库存**：DB insert → Redis saveInventory
+
+### TicketOrderItem 新增 inventoryId
+
+- `TicketOrderItem.java` / `schema.sql` 新增 `inventoryId` 字段
+- `createOrder()` 设置 `inventoryId`，取消/支付时直接用 inventoryId 精准操作 Redis key
+
+### Docker Compose 添加 Redis
+
+- 服务：`redis:7-alpine` + 健康检查 + 数据卷持久化
+- 后端新增 `REDIS_HOST: redis` 环境变量，启动依赖 Redis 健康检查
+
+改动文件：11 个（2 新文件 + 9 修改）
+
+已验证：
+
+- 代码交叉审查通过，无语法错误（当前环境无 Maven/Runtime）
+- 需在本地执行 `cd backend && mvn test` 验证
+
+阶段总结：
+
+- `docs/stage-15-redis-summary.md`
+
+---
+
+## Stage 16: 项目收尾打磨
+
+日期：2026-06-28
+
+完成的改动：
+
+### 完善 README
+
+- 重写为面试项目首页风格
+- 新增 ASCII 系统架构图 + 双层防超卖流程图
+- 技术栈 / 功能模块表格化
+- 新增截图占位区和文档索引表
+
+### 简历要点
+
+新文件：`docs/resume-bullet-points.md`
+
+- 三段式简历描述（项目概述 → 工作内容 → 技术亮点）
+- 简短版一行式描述
+- 技术栈速查表
+
+### 截图目录
+
+新目录：`docs/screenshots/`，含 README 说明需截取的 5 个页面。
+
+### 项目状态
+
+所有 8 个里程碑完成，项目功能完整。
+
